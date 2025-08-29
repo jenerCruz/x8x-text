@@ -1,0 +1,32 @@
+name: Probar imagen personalizada de n8n
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test-n8n:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar el repositorio
+        uses: actions/checkout@v3
+
+      - name: Construir imagen Docker
+        run: docker build -t mi-n8n .
+
+      - name: Ejecutar contenedor
+        run: |
+          docker run -d --name test-n8n -p 5678:5678 mi-n8n
+          sleep 15
+
+      - name: Verificar que n8n responde
+        run: |
+          curl --fail http://localhost:5678 || (
+            echo "❌ Error: n8n no respondió"
+            docker logs test-n8n
+            exit 1
+          )
+
+      - name: Mostrar logs del contenedor
+        run: docker logs test-n8n mm o
